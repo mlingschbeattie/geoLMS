@@ -42,7 +42,7 @@ describe("events schema validation", () => {
   });
 
   it("fails invalid events", () => {
-    const invalidMissingField = {
+    const invalidMissingBarcodeInPayload = {
       eventId: "ev-invalid-1",
       timestamp: "2026-02-18T12:00:00.000Z",
       type: "SCAN_ITEM",
@@ -60,7 +60,21 @@ describe("events schema validation", () => {
       payload: {}
     };
 
-    expect(validateEvent(invalidMissingField as never).ok).toBe(false);
+    expect(validateEvent(invalidMissingBarcodeInPayload as never).ok).toBe(false);
     expect(validateEvent(invalidUnknownType as never).ok).toBe(false);
+  });
+
+  it("fails event with unknown top-level property", () => {
+    const invalidExtraTopLevel = {
+      eventId: "ev-invalid-3",
+      timestamp: "2026-02-18T12:00:00.000Z",
+      type: "SCAN_ITEM",
+      traineeId: "t1",
+      sessionId: "s1",
+      payload: { barcode: "ITEM-001" },
+      extraField: "not-allowed"
+    };
+
+    expect(validateEvent(invalidExtraTopLevel as never).ok).toBe(false);
   });
 });

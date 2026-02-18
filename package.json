@@ -4,7 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint:contracts": "node scripts/validate-contracts.mjs",
+    "ci": "npm run lint:contracts && npm run test"
   },
   "devDependencies": {
     "@types/node": "^22.13.10",

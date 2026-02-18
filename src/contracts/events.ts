@@ -58,7 +58,7 @@ export type KeyPayloads = {
   SCAN_ITEM: { barcode: string };
   ENTER_QUANTITY: { quantity: number };
   SCAN_TOTE_VERIFY: { barcode: string };
-  STEP_REJECTED: { errorCode: ErrorCode };
+  STEP_REJECTED: { errorCode: ErrorCode; rejectedType?: EventType };
   ERROR: { errorCode: ErrorCode; details?: Record<string, unknown> };
 };
 
@@ -82,8 +82,43 @@ export type BaseEvent<T extends EventType = EventType> = {
 export type AnyEvent = BaseEvent<EventType>;
 
 export function createEvent<T extends EventType>(event: BaseEvent<T>): Readonly<BaseEvent<T>> {
-  return Object.freeze({
-    ...event,
-    payload: Object.freeze({ ...event.payload }) as EventPayload<T>
-  });
+  const {
+    eventId,
+    timestamp,
+    type,
+    traineeId,
+    sessionId,
+    payload,
+    cartSessionId,
+    cartId,
+    roundNumber,
+    pickTaskId
+  } = event;
+
+  const base: BaseEvent<T> = {
+    eventId,
+    timestamp,
+    type,
+    traineeId,
+    sessionId,
+    payload: Object.freeze({ ...payload }) as EventPayload<T>
+  };
+
+  if (cartSessionId !== undefined) {
+    base.cartSessionId = cartSessionId;
+  }
+
+  if (cartId !== undefined) {
+    base.cartId = cartId;
+  }
+
+  if (roundNumber !== undefined) {
+    base.roundNumber = roundNumber;
+  }
+
+  if (pickTaskId !== undefined) {
+    base.pickTaskId = pickTaskId;
+  }
+
+  return Object.freeze(base);
 }

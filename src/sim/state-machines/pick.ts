@@ -45,7 +45,7 @@ function rejected(action: AnyEvent, code: ErrorCode, details?: Record<string, un
       type: "STEP_REJECTED",
       traineeId: action.traineeId,
       sessionId: action.sessionId,
-      payload: { errorCode: code }
+      payload: { errorCode: code, rejectedType: action.type }
     }),
     createEvent({
       eventId: `${action.eventId}:error`,
