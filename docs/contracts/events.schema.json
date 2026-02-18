@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://geodis.example/schema/events.schema.json",
+  "title": "GEODIS Picker Training - Event Schema",
+  "type": "object",
+  "required": ["eventId", "timestamp", "type", "traineeId", "sessionId", "payload"],
+  "properties": {
+    "eventId": { "type": "string", "minLength": 8 },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "type": {
+      "type": "string",
+      "enum": [
+        "RF_LOGIN",
+        "RF_MENU_SELECT",
+        "RF_KEY_CTRL_T",
+        "RF_TASK_GROUP_SET",
+        "RF_ZONE_SELECTED",
+
+        "SCAN_CART_LABEL",
+        "SCAN_TOTE_ASSIGN",
+        "RF_KEY_CTRL_E",
+
+        "PICK_ASSIGN",
+        "ARRIVE_LOCATION",
+        "SCAN_ITEM",
+        "ENTER_QUANTITY",
+        "SCAN_TOTE_VERIFY",
+        "RF_END_OF_TOTE_SHOWN",
+        "RF_KEY_CTRL_A",
+        "TOTE_PLACED_ON_CONVEYOR",
+
+        "RF_KEY_CTRL_W",
+        "RF_KEY_CTRL_K",
+
+        "EXCEPTION_TOTE_ALLOCATED",
+        "EXCEPTION_CART_ALREADY_CREATED",
+        "EXCEPTION_INCORRECT_LOCATION",
+        "EXCEPTION_INCORRECT_TOTE",
+        "EXCEPTION_INVALID_ITEM_LAST",
+        "EXCEPTION_INVALID_ITEM_NOT_LAST",
+        "EXCEPTION_SHORT_INVENTORY",
+        "EXCEPTION_DAMAGED_ITEM",
+
+        "STEP_ACCEPTED",
+        "STEP_REJECTED",
+        "ERROR"
+      ]
+    },
+    "traineeId": { "type": "string", "minLength": 1 },
+    "sessionId": { "type": "string", "minLength": 1 },
+
+    "cartSessionId": { "type": "string" },
+    "cartId": { "type": "string" },
+    "roundNumber": { "type": "integer", "minimum": 0 },
+    "pickTaskId": { "type": "string" },
+
+    "payload": { "type": "object" }
+  },
+  "additionalProperties": false,
+
+  "allOf": [
+    {
+      "if": { "properties": { "type": { "const": "RF_MENU_SELECT" } } },
+      "then": {
+        "properties": { "payload": { "required": ["value"], "properties": { "value": { "type": "string" } } } }
+      }
+    },
+    {
+      "if": { "properties": { "type": { "const": "RF_ZONE_SELECTED" } } },
+      "then": {
+        "properties": {
+          "payload": { "required": ["zoneOrTaskGroupCode"], "properties": { "zoneOrTaskGroupCode": { "type": "string" } } }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "type": { "const": "SCAN_CART_LABEL" } } },
+      "then": { "properties": { "payload": { "required": ["barcode"], "properties": { "barcode": { "type": "string" } } } } }
+    },
+    {
+      "if": { "properties": { "type": { "const": "SCAN_TOTE_ASSIGN" } } },
+      "then": {
+        "properties": {
+          "payload": {
+            "required": ["barcode", "slotIndex"],
+            "properties": {
+              "barcode": { "type": "string" },
+              "slotIndex": { "type": "integer", "minimum": 1 }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": { "properties": { "type": { "const": "SCAN_ITEM" } } },
+      "then": { "properties": { "payload": { "required": ["barcode"], "properties": { "barcode": { "type": "string" } } } } }
+    },
+    {
+      "if": { "properties": { "type": { "const": "ENTER_QUANTITY" } } },
+      "then": { "properties": { "payload": { "required": ["quantity"], "properties": { "quantity": { "type": "integer", "minimum": 0 } } } } }
+    },
+    {
+      "if": { "properties": { "type": { "const": "SCAN_TOTE_VERIFY" } } },
+      "then": { "properties": { "payload": { "required": ["barcode"], "properties": { "barcode": { "type": "string" } } } } }
+    },
+    {
+      "if": { "properties": { "type": { "const": "STEP_REJECTED" } } },
+      "then": { "properties": { "payload": { "required": ["errorCode"], "properties": { "errorCode": { "type": "string" } } } } }
+    },
+    {
+      "if": { "properties": { "type": { "const": "ERROR" } } },
+      "then": { "properties": { "payload": { "required": ["errorCode"], "properties": { "errorCode": { "type": "string" }, "details": { "type": "object" } } } } }
+    }
+  ]
+}

@@ -1,0 +1,163 @@
+import { createEvent, type AnyEvent, type BaseEvent, type ErrorCode } from "../../contracts";
+import { emitMany } from "../emit";
+import type { EmittedResult } from "../types";
+
+// SSoT: docs/Workflows/build-cart.md (WI 5.1)
+export type BuildCartStatus =
+  | "BC_IDLE"
+  | "BC_LOGGED_IN"
+  | "BC_PROGRAM_SELECTED"
+  | "BC_PHASE_SELECTED"
+  | "BC_TASK_GROUP_MODE"
+  | "BC_ZONE_SELECTED"
+  | "BC_MAKE_TOTE_CART_SELECTED"
+  | "BC_CART_SCANNED"
+  | "BC_TOTES_ASSIGNING"
+  | "BC_READY_TO_START"
+  | "BC_STARTED";
+
+export type BuildCartState = {
+  status: BuildCartStatus;
+  assignedTotes: readonly string[];
+};
+
+export type BuildCartConfig = {
+  requiredToteCount: number;
+};
+
+export function createBuildCartInitialState(): BuildCartState {
+  return {
+    status: "BC_IDLE",
+    assignedTotes: []
+  };
+}
+
+function accepted(action: AnyEvent): BaseEvent<"STEP_ACCEPTED"> {
+  return createEvent({
+    eventId: `${action.eventId}:accepted`,
+    timestamp: action.timestamp,
+    type: "STEP_ACCEPTED",
+    traineeId: action.traineeId,
+    sessionId: action.sessionId,
+    payload: { acceptedType: action.type }
+  });
+}
+
+function rejected(action: AnyEvent, code: ErrorCode, details?: Record<string, unknown>): readonly AnyEvent[] {
+  return [
+    action,
+    createEvent({
+      eventId: `${action.eventId}:rejected`,
+      timestamp: action.timestamp,
+      type: "STEP_REJECTED",
+      traineeId: action.traineeId,
+      sessionId: action.sessionId,
+      payload: { errorCode: code }
+    }),
+    createEvent({
+      eventId: `${action.eventId}:error`,
+      timestamp: action.timestamp,
+      type: "ERROR",
+      traineeId: action.traineeId,
+      sessionId: action.sessionId,
+      payload: { errorCode: code, details }
+    })
+  ];
+}
+
+function acceptState(state: BuildCartState, action: AnyEvent): EmittedResult<BuildCartState> {
+  return emitMany(state, [action, accepted(action)]);
+}
+
+function rejectState(
+  state: BuildCartState,
+  action: AnyEvent,
+  code: ErrorCode,
+  details?: Record<string, unknown>
+): EmittedResult<BuildCartState> {
+  return emitMany(state, rejected(action, code, details));
+}
+
+export function buildCartReducer(
+  state: BuildCartState,
+  action: AnyEvent,
+  config: BuildCartConfig
+): EmittedResult<BuildCartState> {
+  if (config.requiredToteCount <= 0) {
+    throw new Error("BuildCartConfig.requiredToteCount must be > 0");
+  }
+
+  if (action.type === "RF_KEY_CTRL_E" && state.status !== "BC_READY_TO_START") {
+    return rejectState(state, action, "ERR_SEQUENCE_CTRL_E_TOO_EARLY");
+  }
+
+  if (action.type === "SCAN_TOTE_ASSIGN") {
+    if (!["BC_CART_SCANNED", "BC_TOTES_ASSIGNING"].includes(state.status)) {
+      return rejectState(state, action, "ERR_SEQUENCE_SETUP_INCOMPLETE");
+    }
+
+    const barcode = action.payload.barcode;
+    if (state.assignedTotes.includes(barcode)) {
+      return rejectState(state, action, "ERR_TOTE_DUPLICATE_IN_SETUP", { barcode });
+    }
+
+    const nextAssigned = [...state.assignedTotes, barcode];
+    const nextStatus: BuildCartStatus =
+      nextAssigned.length >= config.requiredToteCount ? "BC_READY_TO_START" : "BC_TOTES_ASSIGNING";
+
+    return acceptState({ ...state, status: nextStatus, assignedTotes: nextAssigned }, action);
+  }
+
+  switch (state.status) {
+    case "BC_IDLE":
+      return action.type === "RF_LOGIN"
+        ? acceptState({ ...state, status: "BC_LOGGED_IN" }, action)
+        : rejectState(state, action, "ERR_SEQUENCE_SETUP_INCOMPLETE");
+
+    case "BC_LOGGED_IN":
+      return action.type === "RF_MENU_SELECT" && action.payload.value === "1"
+        ? acceptState({ ...state, status: "BC_PROGRAM_SELECTED" }, action)
+        : rejectState(state, action, "ERR_SEQUENCE_SETUP_INCOMPLETE");
+
+    case "BC_PROGRAM_SELECTED":
+      return action.type === "RF_MENU_SELECT" && action.payload.value === "2"
+        ? acceptState({ ...state, status: "BC_PHASE_SELECTED" }, action)
+        : rejectState(state, action, "ERR_SEQUENCE_SETUP_INCOMPLETE");
+
+    case "BC_PHASE_SELECTED":
+      return action.type === "RF_KEY_CTRL_T"
+        ? acceptState({ ...state, status: "BC_TASK_GROUP_MODE" }, action)
+        : rejectState(state, action, "ERR_SEQUENCE_SETUP_INCOMPLETE");
+
+    case "BC_TASK_GROUP_MODE":
+      if (action.type === "RF_TASK_GROUP_SET") {
+        return acceptState(state, action);
+      }
+
+      return action.type === "RF_ZONE_SELECTED"
+        ? acceptState({ ...state, status: "BC_ZONE_SELECTED" }, action)
+        : rejectState(state, action, "ERR_SEQUENCE_SETUP_INCOMPLETE");
+
+    case "BC_ZONE_SELECTED":
+      return action.type === "RF_MENU_SELECT" && action.payload.value === "1"
+        ? acceptState({ ...state, status: "BC_MAKE_TOTE_CART_SELECTED" }, action)
+        : rejectState(state, action, "ERR_SEQUENCE_SETUP_INCOMPLETE");
+
+    case "BC_MAKE_TOTE_CART_SELECTED":
+      return action.type === "SCAN_CART_LABEL"
+        ? acceptState({ ...state, status: "BC_CART_SCANNED" }, action)
+        : rejectState(state, action, "ERR_SEQUENCE_SETUP_INCOMPLETE");
+
+    case "BC_CART_SCANNED":
+    case "BC_TOTES_ASSIGNING":
+      return rejectState(state, action, "ERR_SEQUENCE_SETUP_INCOMPLETE");
+
+    case "BC_READY_TO_START":
+      return action.type === "RF_KEY_CTRL_E"
+        ? acceptState({ ...state, status: "BC_STARTED" }, action)
+        : rejectState(state, action, "ERR_SEQUENCE_SETUP_INCOMPLETE");
+
+    case "BC_STARTED":
+      return rejectState(state, action, "ERR_SEQUENCE_SETUP_INCOMPLETE");
+  }
+}
