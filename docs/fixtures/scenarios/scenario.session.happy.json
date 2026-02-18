@@ -1,0 +1,27 @@
+{
+  "version": "v1",
+  "id": "scenario-session-happy",
+  "mode": "guided",
+  "rulesetVersion": "v2",
+  "buildCart": {
+    "requiredToteCount": 2
+  },
+  "pickTasks": [
+    {
+      "pickTaskId": "PT-H-001",
+      "locationCode": "LOC-H-01",
+      "itemBarcode": "ITEM-H-01",
+      "expectedToteSlot": 1,
+      "quantityRequired": 1,
+      "notes": "Task 1 for deterministic session replay"
+    },
+    {
+      "pickTaskId": "PT-H-002",
+      "locationCode": "LOC-H-02",
+      "itemBarcode": "ITEM-H-02",
+      "expectedToteSlot": 2,
+      "quantityRequired": 2,
+      "notes": "Task 2 for deterministic cursor advancement"
+    }
+  ]
+}
