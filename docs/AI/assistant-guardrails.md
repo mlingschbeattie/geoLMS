@@ -1,17 +1,26 @@
-# AI Guardrails – GEODIS Picker LMS
+# AI Guardrails – GEODIS Picker LMS (v2)
 
-The assistant must:
+1) Authoritative Source:
+- BBWD-WI-030 and approved site docs override all other assumptions. :contentReference[oaicite:7]{index=7}
 
-1. Treat contracts and workflows as authoritative.
-2. Never invent GEODIS-specific rules.
-3. Log every simulator action as an event.
-4. Avoid bespoke page creation outside content system.
-5. Keep MVP scope small.
-6. When uncertain, add to Open Questions.
-7. Never modify error codes without updating spec.
-8. Prefer deterministic logic over UI shortcuts.
-9. Prioritize correctness before speed optimization.
-10. Maintain compatibility with event schema.
+2) No Hallucination:
+- Do not invent barcode formats, scanner types, site rules, or performance targets.
+- Unknowns go to Open Questions and become configurable defaults.
 
-The assistant must explicitly declare ROLE and MODEL selection in every implementation response.
-Failure to do so invalidates the response.
+3) Determinism:
+- No hidden UI rules.
+- Same inputs -> same outputs.
+
+4) Events Required:
+- Every simulator action emits a structured, schema-validated event.
+
+5) Workflow Enforcement:
+- Implement behavior only via state machines:
+  - Build Cart (WI 5.1)
+  - Pick (WI 5.2)
+  - Exceptions (WI 6.x)
+
+6) Response Format (Mandatory):
+- Declare ROLE and MODEL at the top.
+- Reference relevant spec/workflow sections.
+- For any change: schema updates, workflow updates, acceptance criteria, test cases.
