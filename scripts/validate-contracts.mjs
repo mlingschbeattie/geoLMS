@@ -4,7 +4,8 @@ import path from "node:path";
 const root = process.cwd();
 const contractFiles = [
   path.join(root, "docs", "contracts", "events.schema.json"),
-  path.join(root, "docs", "contracts", "errors.json")
+  path.join(root, "docs", "contracts", "errors.json"),
+  path.join(root, "docs", "contracts", "scenario.schema.json")
 ];
 
 let hasError = false;

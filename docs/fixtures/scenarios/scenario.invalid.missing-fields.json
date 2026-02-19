@@ -1,0 +1,16 @@
+{
+  "version": "v1",
+  "id": "scenario-invalid-missing-fields",
+  "mode": "guided",
+  "buildCart": {
+    "requiredToteCount": 1
+  },
+  "pickTasks": [
+    {
+      "pickTaskId": "PT-BAD-001",
+      "locationCode": "LOC-BAD-1",
+      "itemBarcode": "ITEM-BAD-001",
+      "expectedToteSlot": 1
+    }
+  ]
+}

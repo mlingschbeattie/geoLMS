@@ -1,0 +1,19 @@
+{
+  "version": "v1",
+  "id": "scenario-minimal-pick",
+  "mode": "guided",
+  "rulesetVersion": "v2",
+  "buildCart": {
+    "requiredToteCount": 1
+  },
+  "pickTasks": [
+    {
+      "pickTaskId": "PT-001",
+      "locationCode": "LOC-01-A",
+      "itemBarcode": "ITEM-ALPHA-001",
+      "expectedToteSlot": 1,
+      "quantityRequired": 1,
+      "notes": "Minimal deterministic pick task"
+    }
+  ]
+}

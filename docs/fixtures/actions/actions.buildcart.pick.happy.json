@@ -1,0 +1,140 @@
+{
+  "actions": [
+    {
+      "eventId": "happy-001",
+      "timestamp": "2026-02-18T10:00:01.000Z",
+      "type": "RF_LOGIN",
+      "traineeId": "t1",
+      "sessionId": "s1",
+      "payload": {}
+    },
+    {
+      "eventId": "happy-002",
+      "timestamp": "2026-02-18T10:00:02.000Z",
+      "type": "RF_MENU_SELECT",
+      "traineeId": "t1",
+      "sessionId": "s1",
+      "payload": { "value": "1" }
+    },
+    {
+      "eventId": "happy-003",
+      "timestamp": "2026-02-18T10:00:03.000Z",
+      "type": "RF_MENU_SELECT",
+      "traineeId": "t1",
+      "sessionId": "s1",
+      "payload": { "value": "2" }
+    },
+    {
+      "eventId": "happy-004",
+      "timestamp": "2026-02-18T10:00:04.000Z",
+      "type": "RF_KEY_CTRL_T",
+      "traineeId": "t1",
+      "sessionId": "s1",
+      "payload": {}
+    },
+    {
+      "eventId": "happy-005",
+      "timestamp": "2026-02-18T10:00:05.000Z",
+      "type": "RF_ZONE_SELECTED",
+      "traineeId": "t1",
+      "sessionId": "s1",
+      "payload": { "zoneOrTaskGroupCode": "ZONE-01" }
+    },
+    {
+      "eventId": "happy-006",
+      "timestamp": "2026-02-18T10:00:06.000Z",
+      "type": "RF_MENU_SELECT",
+      "traineeId": "t1",
+      "sessionId": "s1",
+      "payload": { "value": "1" }
+    },
+    {
+      "eventId": "happy-007",
+      "timestamp": "2026-02-18T10:00:07.000Z",
+      "type": "SCAN_CART_LABEL",
+      "traineeId": "t1",
+      "sessionId": "s1",
+      "payload": { "barcode": "CART-CLI-01" }
+    },
+    {
+      "eventId": "happy-008",
+      "timestamp": "2026-02-18T10:00:08.000Z",
+      "type": "SCAN_TOTE_ASSIGN",
+      "traineeId": "t1",
+      "sessionId": "s1",
+      "payload": { "barcode": "TOTE-CLI-01", "slotIndex": 1 }
+    },
+    {
+      "eventId": "happy-009",
+      "timestamp": "2026-02-18T10:00:09.000Z",
+      "type": "RF_KEY_CTRL_E",
+      "traineeId": "t1",
+      "sessionId": "s1",
+      "payload": {}
+    },
+    {
+      "eventId": "happy-010",
+      "timestamp": "2026-02-18T10:00:10.000Z",
+      "type": "RF_LOGIN",
+      "traineeId": "t1",
+      "sessionId": "s1",
+      "payload": {}
+    },
+    {
+      "eventId": "happy-011",
+      "timestamp": "2026-02-18T10:00:11.000Z",
+      "type": "RF_MENU_SELECT",
+      "traineeId": "t1",
+      "sessionId": "s1",
+      "payload": { "value": "1" }
+    },
+    {
+      "eventId": "happy-012",
+      "timestamp": "2026-02-18T10:00:12.000Z",
+      "type": "RF_MENU_SELECT",
+      "traineeId": "t1",
+      "sessionId": "s1",
+      "payload": { "value": "2" }
+    },
+    {
+      "eventId": "happy-013",
+      "timestamp": "2026-02-18T10:00:13.000Z",
+      "type": "PICK_ASSIGN",
+      "traineeId": "t1",
+      "sessionId": "s1",
+      "payload": {}
+    },
+    {
+      "eventId": "happy-014",
+      "timestamp": "2026-02-18T10:00:14.000Z",
+      "type": "ARRIVE_LOCATION",
+      "traineeId": "t1",
+      "sessionId": "s1",
+      "payload": {}
+    },
+    {
+      "eventId": "happy-015",
+      "timestamp": "2026-02-18T10:00:15.000Z",
+      "type": "SCAN_ITEM",
+      "traineeId": "t1",
+      "sessionId": "s1",
+      "payload": { "barcode": "ITEM-ALPHA-001" }
+    },
+    {
+      "eventId": "happy-016",
+      "timestamp": "2026-02-18T10:00:16.000Z",
+      "type": "ENTER_QUANTITY",
+      "traineeId": "t1",
+      "sessionId": "s1",
+      "payload": { "quantity": 1 }
+    },
+    {
+      "eventId": "happy-017",
+      "timestamp": "2026-02-18T10:00:17.000Z",
+      "type": "SCAN_TOTE_VERIFY",
+      "traineeId": "t1",
+      "sessionId": "s1",
+      "payload": { "barcode": "TOTE-CLI-01" }
+    }
+  ]
+}

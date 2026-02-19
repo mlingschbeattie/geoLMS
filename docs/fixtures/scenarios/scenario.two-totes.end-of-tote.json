@@ -1,0 +1,35 @@
+{
+  "version": "v1",
+  "id": "scenario-two-totes-end-of-tote",
+  "mode": "assisted",
+  "rulesetVersion": "v2",
+  "buildCart": {
+    "requiredToteCount": 2
+  },
+  "pickTasks": [
+    {
+      "pickTaskId": "PT-100",
+      "locationCode": "LOC-10-A",
+      "itemBarcode": "ITEM-100-A",
+      "expectedToteSlot": 1,
+      "quantityRequired": 2,
+      "notes": "Task 1; intended sequencing guidance for end-of-tote test setup"
+    },
+    {
+      "pickTaskId": "PT-101",
+      "locationCode": "LOC-10-B",
+      "itemBarcode": "ITEM-101-B",
+      "expectedToteSlot": 2,
+      "quantityRequired": 1,
+      "notes": "Task 2; no implicit behavior beyond workflow contracts"
+    },
+    {
+      "pickTaskId": "PT-102",
+      "locationCode": "LOC-10-C",
+      "itemBarcode": "ITEM-102-C",
+      "expectedToteSlot": 1,
+      "quantityRequired": 3,
+      "notes": "Task 3; supports deterministic multi-slot progression"
+    }
+  ]
+}

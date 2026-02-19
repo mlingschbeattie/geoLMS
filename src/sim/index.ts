@@ -3,6 +3,8 @@ export * from "./emit";
 export * from "./validate";
 export * from "./scenario";
 export * from "./metrics";
+export * from "./scoring";
+export * from "./certification";
 export * from "./session";
 export * from "./router";
 export * from "./state-machines/buildCart";
