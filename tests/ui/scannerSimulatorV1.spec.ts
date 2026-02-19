@@ -36,6 +36,13 @@ function makeViewModelWithPresentation(): ScannerSimViewModel {
   };
 }
 
+function makeViewModelWithHistory(scanHistory: readonly string[]): ScannerSimViewModel {
+  return {
+    ...makeViewModel(),
+    scanHistory
+  };
+}
+
 describe("mountScannerSimulatorV1", () => {
   it("focuses input on mount", () => {
     const host = document.createElement("div");
@@ -79,7 +86,7 @@ describe("mountScannerSimulatorV1", () => {
     host.remove();
   });
 
-  it("submits UI_SCAN_SUBMITTED on Enter and clears input", () => {
+  it("submits trimmed UI_SCAN_SUBMITTED on Enter and clears input", () => {
     const host = document.createElement("div");
     document.body.appendChild(host);
 
@@ -97,7 +104,7 @@ describe("mountScannerSimulatorV1", () => {
     const handle = mountScannerSimulatorV1(host, adapter, { now: () => 1700000000000 });
     const input = host.querySelector("[data-testid='rfv1-input']") as HTMLInputElement;
 
-    input.value = "LOC-01-A-003";
+    input.value = "  LOC-01-A-003  ";
     input.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
 
     expect(input.value).toBe("");
@@ -110,6 +117,39 @@ describe("mountScannerSimulatorV1", () => {
         source: "keyboard_wedge"
       }
     });
+
+    handle.destroy();
+    host.remove();
+  });
+
+  it("does not submit when input is empty or whitespace", () => {
+    const host = document.createElement("div");
+    document.body.appendChild(host);
+
+    const seenUiEvents: UiEvent[] = [];
+    let applyCalls = 0;
+
+    const adapter: ScannerSimAdapter = {
+      getViewModel: () => makeViewModel(),
+      mapUiEventToEngineEvents: (event) => {
+        seenUiEvents.push(event);
+        return [];
+      },
+      validateEngineEvent: () => {},
+      applyEngineEvents: () => {
+        applyCalls += 1;
+      }
+    };
+
+    const handle = mountScannerSimulatorV1(host, adapter, { now: () => 1700000000000 });
+    const input = host.querySelector("[data-testid='rfv1-input']") as HTMLInputElement;
+
+    input.value = "   ";
+    input.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter" }));
+
+    expect(input.value).toBe("");
+    expect(seenUiEvents).toHaveLength(0);
+    expect(applyCalls).toBe(0);
 
     handle.destroy();
     host.remove();
@@ -212,6 +252,52 @@ describe("mountScannerSimulatorV1", () => {
 
     expect(lastScan.textContent).toBe("LOC-01-A-003");
     expect(lastScanRow.hidden).toBe(false);
+
+    handle.destroy();
+    host.remove();
+  });
+
+  it("renders scan history when present (up to 3, most-recent-first)", () => {
+    const host = document.createElement("div");
+    document.body.appendChild(host);
+
+    const adapter: ScannerSimAdapter = {
+      getViewModel: () => makeViewModelWithHistory(["A", "B", "C", "D"]),
+      mapUiEventToEngineEvents: () => [],
+      validateEngineEvent: () => {},
+      applyEngineEvents: () => {}
+    };
+
+    const handle = mountScannerSimulatorV1(host, adapter);
+    const historyRow = host.querySelector("[data-testid='rfv1-history']") as HTMLElement;
+    const historyList = host.querySelector("[data-testid='rfv1-history-list']") as HTMLOListElement;
+    const historyItems = Array.from(historyList.querySelectorAll("li"));
+
+    expect(historyRow.hidden).toBe(false);
+    expect(historyItems).toHaveLength(3);
+    expect(historyItems.map((item) => item.textContent)).toEqual(["A", "B", "C"]);
+
+    handle.destroy();
+    host.remove();
+  });
+
+  it("hides scan history when absent", () => {
+    const host = document.createElement("div");
+    document.body.appendChild(host);
+
+    const adapter: ScannerSimAdapter = {
+      getViewModel: () => makeViewModel(),
+      mapUiEventToEngineEvents: () => [],
+      validateEngineEvent: () => {},
+      applyEngineEvents: () => {}
+    };
+
+    const handle = mountScannerSimulatorV1(host, adapter);
+    const historyRow = host.querySelector("[data-testid='rfv1-history']") as HTMLElement;
+    const historyList = host.querySelector("[data-testid='rfv1-history-list']") as HTMLOListElement;
+
+    expect(historyRow.hidden).toBe(true);
+    expect(historyList.querySelectorAll("li")).toHaveLength(0);
 
     handle.destroy();
     host.remove();

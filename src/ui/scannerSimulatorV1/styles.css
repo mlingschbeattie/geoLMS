@@ -16,7 +16,7 @@
   height: 100vh;
   overflow: hidden;
   display: grid;
-  grid-template-rows: auto 1fr auto auto auto;
+  grid-template-rows: auto 1fr auto auto auto auto;
   gap: 12px;
   padding: 12px;
   background: var(--rfv1-bg);
@@ -27,7 +27,8 @@
 .rfv1-header,
 .rfv1-instruction,
 .rfv1-input-panel,
-.rfv1-feedback {
+.rfv1-feedback,
+.rfv1-history {
   border: 1px solid var(--rfv1-border);
   background: var(--rfv1-panel);
 }
@@ -158,6 +159,21 @@
   font-size: 24px;
   line-height: 1.2;
   word-break: break-all;
+}
+
+.rfv1-history {
+  display: grid;
+  gap: 6px;
+  padding: 10px;
+}
+
+.rfv1-history-list {
+  margin: 0;
+  padding-left: 20px;
+  display: grid;
+  gap: 4px;
+  font-size: 18px;
+  color: var(--rfv1-text);
 }
 
 .rfv1-feedback-flash {

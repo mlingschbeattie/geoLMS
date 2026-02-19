@@ -20,6 +20,8 @@ type DomRefs = {
   feedbackMessage: HTMLElement;
   lastScanEchoRow: HTMLElement;
   lastScanEchoValue: HTMLElement;
+  historyRow: HTMLElement;
+  historyList: HTMLOListElement;
 };
 
 const FEEDBACK_FLASH_CLASS = "rfv1-feedback-flash";
@@ -61,6 +63,11 @@ function createLayout(host: HTMLElement): DomRefs {
         <span class="rfv1-label">LAST SCAN</span>
         <strong class="rfv1-last-scan-value" data-testid="rfv1-last-scan-value"></strong>
       </section>
+
+      <section class="rfv1-history" data-testid="rfv1-history">
+        <span class="rfv1-label">SCAN HISTORY</span>
+        <ol class="rfv1-history-list" data-testid="rfv1-history-list"></ol>
+      </section>
     </section>
   `;
 
@@ -78,7 +85,9 @@ function createLayout(host: HTMLElement): DomRefs {
     feedbackCode: host.querySelector("[data-testid='rfv1-feedback-code']") as HTMLElement,
     feedbackMessage: host.querySelector("[data-testid='rfv1-feedback-message']") as HTMLElement,
     lastScanEchoRow: host.querySelector("[data-testid='rfv1-last-scan']") as HTMLElement,
-    lastScanEchoValue: host.querySelector("[data-testid='rfv1-last-scan-value']") as HTMLElement
+    lastScanEchoValue: host.querySelector("[data-testid='rfv1-last-scan-value']") as HTMLElement,
+    historyRow: host.querySelector("[data-testid='rfv1-history']") as HTMLElement,
+    historyList: host.querySelector("[data-testid='rfv1-history-list']") as HTMLOListElement
   };
 }
 
@@ -106,6 +115,21 @@ function renderViewModel(
 
   refs.lastScanEchoValue.textContent = viewModel.lastScanEcho ?? "";
   refs.lastScanEchoRow.hidden = !viewModel.lastScanEcho;
+
+  if (viewModel.scanHistory && viewModel.scanHistory.length > 0) {
+    refs.historyRow.hidden = false;
+    const entries = viewModel.scanHistory.slice(0, 3);
+    refs.historyList.replaceChildren(
+      ...entries.map((entry) => {
+        const listItem = refs.historyList.ownerDocument.createElement("li");
+        listItem.textContent = entry;
+        return listItem;
+      }),
+    );
+  } else {
+    refs.historyRow.hidden = true;
+    refs.historyList.replaceChildren();
+  }
 
   if (previousFeedbackKind !== null && previousFeedbackKind !== viewModel.feedback.kind) {
     clearFlashTimeout();
@@ -162,16 +186,21 @@ export function mountScannerSimulatorV1(
       return;
     }
 
+    const value = refs.input.value.trim();
+    refs.input.value = "";
+
+    if (!value) {
+      return;
+    }
+
     const uiEvent: UiEvent = {
       type: "UI_SCAN_SUBMITTED",
       payload: {
-        value: refs.input.value,
+        value,
         timestampMs: now(),
         source: "keyboard_wedge"
       }
     };
-
-    refs.input.value = "";
 
     const engineEvents = adapter.mapUiEventToEngineEvents(uiEvent);
     adapter.applyEngineEvents(engineEvents);

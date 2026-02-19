@@ -26,6 +26,7 @@ export type ScannerSimViewModel = {
     message?: string;
   };
   lastScanEcho?: string;
+  scanHistory?: readonly string[];
 };
 
 export type ScannerSimAdapter = {
